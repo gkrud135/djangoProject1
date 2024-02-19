@@ -3,15 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <title>네이버 지도 파노라마</title>
-    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=ssd8c8ip5h"></script>
+    <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=ssd8c8ip5h&submodules=geocoder,panorama"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
 </head>
 <body>
-    {% if panorama_url %}
-        <h1>주소에 대한 파노라마</h1>
-        <iframe width="100%" height="600" frameborder="0" src="{{ panorama_url }}"></iframe>
-        <div id="pano" style="width:100%;height:400px;"></div>
-    {% elif error_message %}
-        <p>{{ error_message }}</p>
-    {% endif %}
+    <h1>주소에 대한 파노라마</h1>
+        
+        <div id="pano"></div>
+<button id="captureBtn">파노라마 캡처 및 저장</button>
+<!-- 이미지 다운로드 버튼 (숨겨진 상태로 초기화) -->
+     <a id="downloadLink" style="display: none;" download="panorama.png">이미지 다운로드</a>
 </body>
 </html>
+
+
+
+
+<script>
+    var address = "{{ address }}";
+        naver.maps.Service.geocode({
+            query: address
+        }, function(status, response) {
+            if (status !== naver.maps.Service.Status.OK) {
+                return alert('Something wrong!');
+            }
+
+            var result = response.v2, // 검색 결과의 컨테이너
+                items = result.addresses; // 검색 결과의 배열
+
+            console.log(result.addresses);
+            var addressElements = result.addresses; // 결과 주소 요소 배열
+
+            // 첫 번째 주소 요소의 x와 y 값을 가져오는 예시
+            var x = addressElements[0].x; // 경도
+            var y = addressElements[0].y; // 위도
+
+            console.log("x:", x);
+            console.log("y:", y);
+            var pano = new naver.maps.Panorama(document.getElementById("pano"), {
+                position: new naver.maps.LatLng(y, x),
+                size: new naver.maps.Size(1200, 800),
+                pov: {
+                    pan: -135,
+                    tilt: 29,
+                    fov: 100
+                },
+               
+            });
+
+            // 캡처 및 저장 버튼 클릭 시
+            document.getElementById('captureBtn').addEventListener('click', function() {
+                // #pano 영역을 캡처하여 이미지 생성
+                domtoimage.toPng(document.getElementById('pano'), {
+        quality: 0.92, // 이미지 품질 (0에서 1 사이의 값, 기본값은 0.92)
+        width: 1200, // 이미지 너비 (픽셀 단위, 기본값은 원본 요소의 너비)
+        height: 800, // 이미지 높이 (픽셀 단위, 기본값은 원본 요소의 높이)
+        
+    })
+                    .then(function(dataUrl) {
+                        // 이미지 다운로드 링크 설정
+                        var downloadLink = document.getElementById('downloadLink');
+                        downloadLink.href = dataUrl;
+                        // 이미지 다운로드 링크 표시
+                        downloadLink.style.display = 'block';
+                    })
+                    .catch(function(error) {
+                        console.error('Capture failed:', error);
+                    });
+            });
+        });
+    </script>
