@@ -20,7 +20,9 @@
 
 
 <script>
-    var address = "{{ address }}";
+    var results = {{ result|safe }};
+    
+    var address = results.items[0].roadAddress;
         naver.maps.Service.geocode({
             query: address
         }, function(status, response) {
