@@ -30,3 +30,8 @@ def search_naver_local(keyword, start=1, display=1):
         return response.json()
     else:
         return None
+
+def disaster(request):
+
+    context = {}
+    return render(request, 'disaster.html')

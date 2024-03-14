@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,800" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css" />
+  </head>
+
+
+<body>
+<div>
+    {% block content %}
+    {% endblock %}
+</div>
+<script src="{% static 'bootstrap.min.js' %}"></script>
+
+</body>
+</html>
