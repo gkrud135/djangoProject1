@@ -4,6 +4,8 @@ from torchvision import transforms
 from PIL import Image
 from diffusers import StableDiffusionInpaintPipeline, EulerDiscreteScheduler
 
+# ClipSeg 모델 및 CLIP 모델 경로 추가
+sys.path.append('clipseg')
 
 from clipseg.models.clipseg import CLIPDensePredT
 

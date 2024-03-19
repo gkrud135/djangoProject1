@@ -3,29 +3,81 @@
 {% block content %}
     <main>
    <div class="s004">
-      <form>
+      <form action="" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for field in form %}
+                            {% if field.errors %}
+                                <div>
+                                    <strong>{{ field.label }}</strong>
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
         <fieldset>
           <legend>WHAT ARE YOU LOOKING FOR?</legend>
           <div class="inner-form">
             <div class="input-field">
-              <input class="form-control" id="choices-text-preset-values" type="text" placeholder="재난 문자를 입력하시오" />
-              <button class="btn-search" type="button">
+              <input class="form-control" id="disaster_message" type="text" placeholder="재난 문자를 입력하시오" />
+              <button class="btn-search" id="disaster_input" type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                   <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
                 </svg>
               </button>
+                
             </div>
           </div>
         </fieldset>
       </form>
     </div>
+    <div id="output"></div>
+    
+                    <div class="justify-content-center" id="wrap-loading"
+                         style="z-index: 10000; display:none">
+                        <img src="{% static 'images/loading.gif' %}" alt="Loading..."/>
+                    </div>
     <script src="{% static 'js/extention/choices.js' %}"></script>
     <script>
       var textPresetVal = new Choices('#choices-text-preset-values',
       {
         removeItemButton: true,
       });
+      
 
     </script>
     </main>
+{% endblock %}
+
+{% block script %}
+ <script type="text/javascript">
+        $(document).ready(function () {
+            $("#disaster_input").click(function () {
+                $.ajax({
+                    url: "/chart/chart_positioning_chart",
+                    data: {analysis_id:{{analysis_id}}},
+                    success: function (data) {
+                        $("#output").append(data);
+                    },
+                    beforeSend: function () {
+                        var lording = $("#wrap-loading")
+                        $("#result-img").remove();
+                        $("#sentiment_option").remove();
+                        lording.addClass("d-flex");
+                        lording.show();
+
+                    },
+                    complete: function () {
+                        var lording = $("#wrap-loading");
+                        lording.removeClass("d-flex");
+                        lording.hide();
+
+                    },
+                });
+
+            });
+        });
+    </script>
 {% endblock %}

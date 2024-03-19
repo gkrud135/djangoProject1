@@ -1,4 +1,6 @@
-
+import sys
+sys.path.append('clipseg')
+# sys.path.append('C:/Users/gkrud/PycharmProjects/djangoProject1/clipseg')
 
 import torch
 from torchvision import transforms

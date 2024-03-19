@@ -1,9 +1,11 @@
 import sys
-from chatgpt import parse_disaster_alert
-from rainy import create_rain_effect
-from snowy import create_snow_effect
-from background_inpainting import background_inpainting
-from inpainting import apply_inpainting
+from naver.src.chatgpt import parse_disaster_alert
+from naver.src.rainy import create_rain_effect
+from naver.src.snowy import create_snow_effect
+from naver.src.background_inpainting import background_inpainting
+from naver.src.inpainting import apply_inpainting
+import os
+import openai
 
 def main(alert_text, image_path):
     parsed_alert = parse_disaster_alert(alert_text)
@@ -47,13 +49,8 @@ def main(alert_text, image_path):
     else:
         print("적용된 재난 효과가 없습니다.")
 
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python main.py '<alert_text>' <image_path>")
-        sys.exit(1)
-    alert_text = sys.argv[1]
-    image_path = sys.argv[2]
-    main(alert_text, image_path)
+
+main(alert_text="오늘 05:20 갑천 대전시(원촌교) 홍수주의보 발령, 안전에 유의하시기 바랍니다",image_path="test1/test1.jpg" )
 
 
 
