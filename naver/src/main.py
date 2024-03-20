@@ -1,12 +1,14 @@
 import sys
-from chatgpt import parse_disaster_alert
-from rainy import create_rain_effect
-from snowy import create_snow_effect
-from background_inpainting import background_inpainting
-from inpainting import apply_inpainting
+from .chatgpt import parse_disaster_alert
+from .rainy import create_rain_effect
+from .snowy import create_snow_effect
+from .background_inpainting import background_inpainting
+from .inpainting import apply_inpainting
+import pickle
 
-def main(alert_text, image_path):
-    parsed_alert = parse_disaster_alert(alert_text)
+def main(parsed_alert, image_path):
+
+
     disaster_types = parsed_alert['재난 종류'].split(", ")  # '호우, 홍수'와 같은 입력을 리스트로 변환
     alert_intensity = parsed_alert.get('재난 강도', None)
 
@@ -43,17 +45,25 @@ def main(alert_text, image_path):
 
     # 최종 이미지를 표시하거나 저장합니다.
     if 'final_image' in locals():
-        final_image.show()  # 최종 이미지를 표시합니다.
+        final_image.save('static/disaster/disaster.png')  # 최종 이미지를 표시합니다.
     else:
         print("적용된 재난 효과가 없습니다.")
 
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python main.py '<alert_text>' <image_path>")
-        sys.exit(1)
-    alert_text = sys.argv[1]
-    image_path = sys.argv[2]
-    main(alert_text, image_path)
+
+def parsed_disaster(alert_text):
+
+
+    # parsed_alert = parse_disaster_alert(alert_text)
+    # print(parsed_alert)
+    # with open ("data.pickle", "wb") as fw:
+    #     pickle.dump(parsed_alert, fw)
+
+    with open("data.pickle", "rb") as fr:
+        parsed_alert = pickle.load(fr)
+
+    return parsed_alert
+
+
 
 
 

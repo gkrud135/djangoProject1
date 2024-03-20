@@ -2,12 +2,14 @@ from openai import OpenAI
 import os
 
 # Set the API key from an environment variable
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "***"
 
 # Create an OpenAI client instance
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def parse_disaster_alert(alert_text):
+    os.environ["OPENAI_API_KEY"] = "***"
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     instruction = f"""
     재난 텍스트 입력을 재난 발생 위치, 종류, 강도 및 발생 시간 정보로 변환하세요. 분류할 수 없는 항목은 None으로 출력하세요. 모든 출력은 한국어로 해야 합니다.
 
