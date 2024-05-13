@@ -1,28 +1,31 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>네이버 지도 파노라마</title>
-    <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=ssd8c8ip5h&submodules=geocoder,panorama"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
     <h1>주소에 대한 파노라마</h1>
+    {% csrf_token %}
         
         <div id="pano"></div>
-<button id="captureBtn">파노라마 캡처 및 저장</button>
-<!-- 이미지 다운로드 버튼 (숨겨진 상태로 초기화) -->
-     <a id="downloadLink" style="display: none;" download="panorama.png">이미지 다운로드</a>
-</body>
-</html>
-
-
-
-<!-- FileSaver.js 라이브러리 로드 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-<script>
-    var results = {{ result|safe }};
+<button id="captureBtn">파노라마 캡처</button>
+<div id="output"></div>
     
+                    <div class="justify-content-center" id="wrap-loading"
+                         style="z-index: 10000; display:none">
+                        <img src="{% static 'images/loading.gif' %}" alt="Loading..."/>
+                    </div>
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script type="text/javascript">
+    var alertText = {{ alert_text|safe }};
+    
+</script>
+<script>
+    
+    var results = {{ result|safe }};
+    console.log(results);
     var address = results.items[0].roadAddress;
         naver.maps.Service.geocode({
             query: address
@@ -45,34 +48,56 @@
             console.log("y:", y);
             var pano = new naver.maps.Panorama(document.getElementById("pano"), {
                 position: new naver.maps.LatLng(y, x),
-                size: new naver.maps.Size(1200, 800),
+                size: new naver.maps.Size(512, 512),
                 pov: {
                     pan: -135,
                     tilt: 29,
                     fov: 100
                 },
-               
+
             });
 
-            // 캡처 및 저장 버튼 클릭 시
-            document.getElementById('captureBtn').addEventListener('click', function() {
-                // #pano 영역을 캡처하여 이미지 생성
-                domtoimage.toPng(document.getElementById('pano'), {
-        quality: 0.92, // 이미지 품질 (0에서 1 사이의 값, 기본값은 0.92)
-        width: 1200, // 이미지 너비 (픽셀 단위, 기본값은 원본 요소의 너비)
-        height: 800, // 이미지 높이 (픽셀 단위, 기본값은 원본 요소의 높이)
-        
+            
+
+document.getElementById('captureBtn').addEventListener('click', function() {
+    // #pano 영역을 캡처하여 이미지 생성
+    console.log(alertText);
+    domtoimage.toPng(document.getElementById('pano'), {
+        quality: 1, // 이미지 품질
+        width: 512, // 이미지 너비
+        height: 512, // 이미지 높이
     })
-                    .then(function(dataUrl) {
-                        // 이미지 다운로드 링크 설정
-                        var downloadLink = document.getElementById('downloadLink');
-                        downloadLink.href = dataUrl;
-                        // 이미지 다운로드 링크 표시
-                        downloadLink.style.display = 'block';
-                    })
-                    .catch(function(error) {
-                        console.error('Capture failed:', error);
-                    });
-            });
+    .then(function(dataUrl) {
+        // 생성된 이미지 데이터를 Base64 문자열로 서버에 AJAX 요청으로 전송
+        $.ajax({
+            url: "disaster",
+            type: "POST", // HTTP 요청 방식을 POST로 설정
+            contentType: "application/json",
+            data: JSON.stringify({
+                image: dataUrl, // 이미지 데이터
+                alert_text: alertText // 기타 필요한 데이터
+            }),
+            success: function(data) {
+                $("#output").append(data);
+            },
+            beforeSend: function(xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                var loading = $("#wrap-loading");
+                $("#result-img").remove();
+                loading.addClass("d-flex");
+                loading.show();
+            },
+            complete: function() {
+                var loading = $("#wrap-loading");
+                loading.removeClass("d-flex");
+                loading.hide();
+            },
+        });
+    })
+    .catch(function(error) {
+        console.error('Capture failed:', error);
+    });
+});
         });
     </script>
+{% endblock %}

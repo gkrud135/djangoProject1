@@ -1,11 +1,11 @@
 from openai import OpenAI
 import os
 
-
 # Set the API key from an environment variable
+os.environ["OPENAI_API_KEY"] = "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"
 
 # Create an OpenAI client instance
-
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def parse_disaster_alert(alert_text):
     OpenAI.api_key = "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"
@@ -66,6 +66,3 @@ def parse_disaster_alert(alert_text):
             parsed_output[key] = None
 
     return parsed_output
-alert_text = "오늘 05:20 갑천 대전시(원촌교) 홍수주의보 발령, 안전에 유의하시기 바랍니다"
-d= parse_disaster_alert(alert_text)
-print(d)
