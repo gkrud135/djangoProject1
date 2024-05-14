@@ -18,9 +18,9 @@ def search_panorama(request):
 
         alert_text = parsed_disaster(address)
         print(alert_text['재난 발생 위치'])
-        res = search_naver_local('강남역')
+        res = search_naver_local('서울 강남역')
         print(res)
-        result = json.dumps(search_naver_local("강남역"))
+        result = json.dumps(search_naver_local(alert_text['재난 발생 위치']))
         print(result)
 
 
@@ -46,9 +46,22 @@ def search_naver_local(keyword, start=1, display=1):
         return None
 
 def disaster(request):
+    if request.method == 'POST':
+        address = request.POST.get('address')  # POST로부터 검색할 주소를 가져옴
 
-    context = {}
-    return render(request, 'disaster.html')
+        alert_text = parsed_disaster(address)
+        print(alert_text['재난 발생 위치'])
+        res = search_naver_local('서울 강남역')
+        print(res)
+        result = json.dumps(search_naver_local(alert_text['재난 발생 위치']))
+
+        print(result)
+
+        return render(request, 'panorama.html', {'address': address, 'result': result, 'alert_text': alert_text})
+
+    else:
+        return render(request, 'disaster.html', {'error_message': '잘못된 접근입니다.'})
+
 
 @csrf_exempt
 def disaster_img(request):

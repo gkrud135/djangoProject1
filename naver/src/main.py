@@ -31,17 +31,23 @@ def main(parsed_alert, image_path):
         for disaster_type in disaster_types:
             if disaster_type in surface_disasters:
                 print(f"{disaster_type}에 대한 인페인팅을 적용 중...")
-                final_image = apply_inpainting(final_image if 'final_image' in locals() else image_path, disaster_type, alert_intensity)
+                if 'final_image' not in locals():
+                    final_image = image_path
+                final_image = apply_inpainting(final_image, disaster_type, alert_intensity)
 
     # 전역 규모 재난의 추가적인 이미지 변환
     if has_global_disaster:
         for disaster_type in disaster_types:
             if disaster_type == '호우':
                 print("비 효과를 적용 중...")
-                final_image = create_rain_effect(final_image if 'final_image' in locals() else image_path)
+                if 'final_image' not in locals():
+                    final_image = image_path
+                final_image = create_rain_effect(final_image)
             elif disaster_type == '대설':
                 print("눈 효과를 적용 중...")
-                final_image = create_snow_effect(final_image if 'final_image' in locals() else image_path)
+                if 'final_image' not in locals():
+                    final_image = image_path
+                final_image = create_snow_effect(final_image)
 
     # 최종 이미지를 표시하거나 저장합니다.
     if 'final_image' in locals():
@@ -53,13 +59,13 @@ def main(parsed_alert, image_path):
 def parsed_disaster(alert_text):
 
 
-    # parsed_alert = parse_disaster_alert(alert_text)
-    # print(parsed_alert)
-    # with open ("data.pickle", "wb") as fw:
-    #     pickle.dump(parsed_alert, fw)
+    parsed_alert = parse_disaster_alert(alert_text)
+    print(parsed_alert)
+    with open ("data.pickle", "wb") as fw:
+        pickle.dump(parsed_alert, fw)
 
-    with open("data.pickle", "rb") as fr:
-        parsed_alert = pickle.load(fr)
+    # with open("data.pickle", "rb") as fr:
+    #     parsed_alert = pickle.load(fr)
 
     return parsed_alert
 

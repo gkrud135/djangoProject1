@@ -53,8 +53,8 @@ def apply_inpainting(image, disaster_type, alert_intensity):
     pipe = pipe.to("cpu")
 
     # 이미지 전처리
-    if isinstance(image, str):
-        image = Image.open(image).convert('RGB')
+
+    image = Image.open(image).convert('RGB')
     tensor_image = transforms.ToTensor()(image).unsqueeze(0)
 
     # ClipSeg를 사용하여 마스크 생성
