@@ -9,6 +9,7 @@ import os
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from PIL import Image
 
 
 # Create your views here.
@@ -91,8 +92,8 @@ def disaster_img(request):
             raise ValueError("Invalid image format")
         image_data = base64.b64decode(base64_encoded_data)
         image_data = BytesIO(image_data)
-
-        main(alert_text, image_data)
+        image_path = Image.open(image_data)
+        main(alert_text, image_path)
 
         images_dir = os.path.join(settings.BASE_DIR, 'static', 'disaster')
         image_file = [f for f in os.listdir(images_dir) if os.path.isfile(os.path.join(images_dir, f))]
