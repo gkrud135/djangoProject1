@@ -5,6 +5,8 @@ from .snowy import create_snow_effect
 from .background_inpainting import background_inpainting
 from .inpainting import apply_inpainting
 import pickle
+from UNIT.daytime2 import day2night
+from UNIT.test_batch import d2n
 
 def main(parsed_alert, image_path):
 
@@ -54,11 +56,17 @@ def main(parsed_alert, image_path):
                 print("눈 효과를 적용 중...")
                 final_image = create_snow_effect(final_image if 'final_image' in locals() else image_path)
 
-    # 최종 이미지를 표시하거나 저장합니다.
-    if 'final_image' in locals():
-        final_image.save('static/disaster/disaster.png')  # 최종 이미지를 표시합니다.
+    sun = day2night()
+
+    if sun is 1 :
+        d2n(final_image)
     else:
-        print("적용된 재난 효과가 없습니다.")
+        # 최종 이미지를 표시하거나 저장합니다.
+        if 'final_image' in locals():
+            final_image.save('static/disaster/disaster.png')  # 최종 이미지를 표시합니다.
+        else:
+            print("적용된 재난 효과가 없습니다.")
+
 
 
 def parsed_disaster(alert_text):

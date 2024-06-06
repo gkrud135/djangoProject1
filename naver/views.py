@@ -51,9 +51,6 @@ def disaster(request):
         address = request.POST.get('address')  # POST로부터 검색할 주소를 가져옴
 
         alert_text = parsed_disaster(address)
-        print(alert_text['재난 발생 위치'])
-        res = search_naver_local('서울 강남역')
-        print(res)
         result = json.dumps(search_naver_local(alert_text['재난 발생 위치']))
 
         print(result)
