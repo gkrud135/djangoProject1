@@ -82,17 +82,11 @@ def apply_inpainting(image, disaster_type, alert_intensity):
     # 이미지 데이터 타입 확인 및 변환
     if isinstance(image, io.BytesIO):
         image.seek(0)  # 스트림의 시작 부분으로 포인터 이동
-        image = Image.open(image).convert('RGB')  # BytesIO를 PIL Image 객체로 변환 및 RGB로 변환
+        image = Image.open(image).convert('RGB')  # BytesIO를 PIL Image 객체로 변환
     elif isinstance(image, str):
-        image = Image.open(image).convert('RGB')  # 파일 경로에서 이미지 로드 및 RGB로 변환
-    elif isinstance(image, Image.Image):
-        image = image.convert('RGB')  # PIL Image 객체를 RGB로 변환
+        image = Image.open(image).convert('RGB')  # 파일 경로에서 이미지 로드 및 변환
 
-    preprocess = transforms.Compose([
-        transforms.Resize((512, 512)),
-        transforms.ToTensor(),
-    ])
-    tensor_image = preprocess(image).unsqueeze(0).to(device)
+    tensor_image = transforms.ToTensor()(image).unsqueeze(0).to(device)
 
     # 모델 설정
     model_path = 'weights/clipseg_weights/rd64-uni.pth'
@@ -102,8 +96,8 @@ def apply_inpainting(image, disaster_type, alert_intensity):
 
     # Stable Diffusion 인페인팅 파이프라인 설정
     model_dir = "stabilityai/stable-diffusion-2-inpainting"
-    scheduler = EulerDiscreteScheduler.from_pretrained(model_dir, subfolder="scheduler")
-    pipe = StableDiffusionInpaintPipeline.from_pretrained(model_dir, scheduler=scheduler, revision="fp16", torch_dtype=torch.float16).to(device)
+    scheduler = EulerDiscreteScheduler.from_pretrained(model_dir, subfolder="scheduler").to(device)
+    pipe = StableDiffusionInpaintPipeline.from_pretrained(model_dir, scheduler=scheduler, revision="fp16", torch_dtype=torch.float32).to(device)
 
     # ClipSeg를 사용하여 마스크 생성
     segment_prompt = get_segment_prompt(disaster_type)
@@ -114,7 +108,7 @@ def apply_inpainting(image, disaster_type, alert_intensity):
     # 마스크 확장 또는 축소 적용
     expand = disaster_type not in ['산불', '산사태', '화재', '폭발사고']
     expanded_mask = adjust_mask_based_on_alert_intensity(processed_mask, alert_intensity, expand=expand)
-    stable_diffusion_mask = transforms.ToPILImage()(expanded_mask.cpu()).convert("L")
+    stable_diffusion_mask = transforms.ToPILImage()(expanded_mask.cpu())
 
     # 인페인팅 프롬프트 설정
     english_disaster_type = disaster_type_to_english.get(disaster_type, 'disaster')
@@ -122,13 +116,6 @@ def apply_inpainting(image, disaster_type, alert_intensity):
 
     # 이미지 인페인팅을 수행합니다.
     generator = torch.Generator(device=device).manual_seed(77)
-    result_image = pipe(
-        prompt=inpainting_prompt,
-        guidance_scale=7.5,
-        num_inference_steps=60,
-        generator=generator,
-        image=image.resize((512, 512)).convert('RGB'),  # 이미지를 3채널로 변환
-        mask_image=stable_diffusion_mask
-    ).images[0]
+    result_image = pipe(prompt=inpainting_prompt, guidance_scale=7.5, num_inference_steps=60, generator=generator, image=tensor_image, mask_image=stable_diffusion_mask).images[0]
 
     return result_image

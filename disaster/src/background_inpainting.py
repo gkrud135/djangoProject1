@@ -1,16 +1,15 @@
 import sys
-sys.path.append('clipseg')
-# sys.path.append('C:/Users/gkrud/PycharmProjects/djangoProject1/clipseg')
+sys.path.append('C:/Users/admin/Desktop/seg inpainting/clipseg_repo')
 
 import torch
 from torchvision import transforms
 from PIL import Image
-from clipseg.models.clipseg import CLIPDensePredT
+from models.clipseg import CLIPDensePredT
 from diffusers import StableDiffusionInpaintPipeline, EulerDiscreteScheduler
 
 def background_inpainting(image_path):
     # 모델 설정
-    model_path = 'weights/clipseg_weights/rd64-uni.pth'
+    model_path = 'C:/Users/admin/Desktop/seg inpainting/clipseg_weights/clipseg_weights/rd64-uni.pth'
     model = CLIPDensePredT(version='ViT-B/16', reduce_dim=64)
     model.eval()
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')), strict=False)
